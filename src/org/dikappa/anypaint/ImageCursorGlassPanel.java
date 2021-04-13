@@ -84,14 +84,23 @@ public class ImageCursorGlassPanel extends JComponent {
 	                                        glassPanePoint,
 	                                        layeredPane);
 	        
-	        if (containerPoint.y >= 0 && containerPoint.x >=0) { //we're not in the content pane
+	        if (containerPoint.y >= 0 && containerPoint.x >=0) {
 	            Component component = 
 	                SwingUtilities.getDeepestComponentAt(
 	                                        layeredPane,
 	                                        containerPoint.x,
 	                                        containerPoint.y);
 
+	            if ((e.getID()==MouseEvent.MOUSE_MOVED||e.getID()==MouseEvent.MOUSE_DRAGGED)&&component!=lastDispatchComponent&&lastDispatchComponent!=null) {
+	    	        Point exitPoint = SwingUtilities.convertPoint(
+                            ImageCursorGlassPanel.this,
+                            glassPanePoint,
+                            lastDispatchComponent);
+	            	
+	            	lastDispatchComponent.dispatchEvent(new MouseEvent(component, MouseEvent.MOUSE_EXITED, e.getWhen(), e.getModifiersEx(), exitPoint.x, exitPoint.y, e.getXOnScreen(), e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getButton()));
+	            }
 
+	            
 	            if (component != null) {
 	                Point componentPoint = SwingUtilities.convertPoint(
 	                                            ImageCursorGlassPanel.this,

@@ -16,6 +16,8 @@ public class AnyPaint {
 	protected float width;
 	protected float height;
 	
+	double scale;
+	
 	protected float pencillength;
 	protected float pencilwidth;
 	
@@ -32,8 +34,9 @@ public class AnyPaint {
 	
 	protected JFrame frame;
 	protected ToolBoxPanel toolBox;
+	protected ActionBox actionBox;
 	protected Canvas canvas;
-	protected ImageCursorGlassPanel glassPane;
+	protected ImageCursorPanel cursorPanel;
 	
 	public AnyPaint() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -41,43 +44,49 @@ public class AnyPaint {
 		
         frame=new JFrame("Minipainter");
 		toolBox=new ToolBoxPanel(this);
+		actionBox=new ActionBox(this);
 		canvas=new Canvas(this);
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
-		JPanel content=new JPanel(new BorderLayout());
+		cursorPanel=new ImageCursorPanel();
+		cursorPanel.setLayout(new BorderLayout());
 		JPanel canvasframe=new JPanel(new GridBagLayout());
 		canvasframe.add(canvas);
-		content.add(canvasframe, BorderLayout.CENTER);
-		content.add(toolBox, BorderLayout.EAST);
+		cursorPanel.add(canvasframe, BorderLayout.CENTER);
+		cursorPanel.add(toolBox, BorderLayout.EAST);
+		cursorPanel.add(actionBox, BorderLayout.WEST);
 
-		content.addComponentListener(new ComponentAdapter() {
+		cursorPanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				setSize(content.getWidth(), content.getHeight());
-				content.repaint();
-				System.out.println("Comp resized to "+content.getWidth()+"x"+content.getHeight());
+				setSize(cursorPanel.getWidth(), cursorPanel.getHeight());
+				cursorPanel.repaint();
 			}
 		});
 		
-		glassPane=new ImageCursorGlassPanel(frame);
-		frame.setContentPane(content);
-		frame.setGlassPane(glassPane);
-		glassPane.setVisible(true);
+		
+		frame.setContentPane(cursorPanel);
 		
 		frame.setUndecorated(true);
 		frame.setResizable(false);
 		frame.pack();
-		device.setFullScreenWindow(frame);
+
+		frame.setSize(800,600);
+		frame.revalidate();
+		frame.setVisible(true);
+		//device.setFullScreenWindow(frame);
 	}
 
 	public void setSize(int width, int height) {
 		this.width=width;
 		this.height=height;
+		scale=height/1000.0;
 		
 		calculateSizes();
-		canvas.clear(getCanvasWidth(), getCanvasHeight());
 		toolBox.onResize();
+		actionBox.setScale(scale);
+		canvas.clear((int) (width-vtoolspacing*2-toolBox.getPreferredSize().width-actionBox.getPreferredSize().width), getCanvasHeight());
 	}
 	
 	protected void calculateSizes() {
@@ -91,7 +100,7 @@ public class AnyPaint {
 		vtoolspacing=height/48;
 		
 		canvasheight=height-vtoolspacing*2;
-		canvaswidth=width-vtoolspacing*4-pencillength;
+		canvaswidth=width-vtoolspacing*6-pencillength-getActionIconWidth();
 		
 		pencilstrokesize=height/100;
 		eraserstrokesize=pencilstrokesize*4;
@@ -152,7 +161,15 @@ public class AnyPaint {
 		return canvas;
 	}
 	
-	public ImageCursorGlassPanel getCursorPane() {
-		return glassPane;
+	public ImageCursorPanel getCursorPane() {
+		return cursorPanel;
+	}
+	
+	public float getActionIconHeight() {
+		return height/8;
+	}
+
+	public float getActionIconWidth() {
+		return height/12;
 	}
 }

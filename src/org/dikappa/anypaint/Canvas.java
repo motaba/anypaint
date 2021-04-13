@@ -14,6 +14,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -32,8 +33,7 @@ public class Canvas extends JComponent {
 	
 	protected Tool currentTool;
 	
-	protected Image cursorImage;
-	protected Point cursorHotspot;
+	protected Cursor cursor;
 	
 	public Canvas(AnyPaint mp) {
 		this.mp=mp;
@@ -78,7 +78,7 @@ public class Canvas extends JComponent {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				lastMousePos=e.getPoint();
-				mp.getCursorPane().setImage(cursorImage, cursorHotspot);
+				mp.getCursorPane().setDrawingCursor(cursor);
 			}
 			
 			@Override
@@ -141,21 +141,12 @@ public class Canvas extends JComponent {
 	public void onToolSelected() {
 		currentTool=mp.getToolBox().getCurrentTool();
 		if (currentTool==null) {
-			cursorImage=null;
-			cursorHotspot=null;
-			return;
+			cursor=null;
 		}
 		Drawing draw=currentTool.getDrawing();
-		double angle=draw.getCursorAngle(true);
+		double angle=-Math.PI/6.0;
 		Point hotspot=draw.getHotSpot(angle);
-		Rectangle r=draw.determineBounds(angle);
-		BufferedImage toolImage=new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g=toolImage.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		draw.draw(g,-r.x,-r.y,draw.getCursorAngle(true));
-		Point toolHotspot=new Point(hotspot.x-r.x,hotspot.y-r.y);
-		cursorImage=toolImage;
-		cursorHotspot=toolHotspot;
+		cursor=new Cursor(draw.getTransformedDrawing(AffineTransform.getRotateInstance(angle)),hotspot);
 	}
 	
 }

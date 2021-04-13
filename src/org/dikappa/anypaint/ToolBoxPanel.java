@@ -4,13 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +36,8 @@ public class ToolBoxPanel extends JComponent {
 	protected List<Tool> tools=new ArrayList<Tool>();
 	
 	protected Drawing handDrawing;
-	protected BufferedImage cursorImage;
-	protected Point cursorHotspot;
+	
+	protected Cursor cursor;
 	
 	protected Tool currentTool;
 	
@@ -66,7 +64,7 @@ public class ToolBoxPanel extends JComponent {
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				app.getCursorPane().setImage(cursorImage, cursorHotspot);
+				app.getCursorPane().setDrawingCursor(cursor);
 			}
 		});
 	}
@@ -112,20 +110,15 @@ public class ToolBoxPanel extends JComponent {
 	public void onToolSelected() {
 		Tool t=getCurrentTool();
 		Point hotspot=handDrawing.getHotSpot(0);
-		Rectangle r=handDrawing.determineBounds(0);
+		Drawing cd=handDrawing;
 		if (t!=null) {
-			r=r.union(t.getDrawing().determineBounds(Math.PI/2));
-		}
-		cursorImage=new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g=cursorImage.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		if (t!=null) {
-			t.getDrawing().draw(g,-r.x,-r.y,Math.PI/2);
-		}
-		handDrawing.draw(g,-r.x,-r.y,0);
-		cursorHotspot=new Point(hotspot.x-r.x,hotspot.y-r.y);
+			cd=Drawing.overlay(
+				t.getDrawing().getTransformedDrawing(AffineTransform.getRotateInstance(Math.PI/2.0)),
+				handDrawing);
 
-		app.getCursorPane().setImage(cursorImage, cursorHotspot);
+		}
+		cursor=new Cursor(cd, hotspot);
+		app.getCursorPane().setDrawingCursor(cursor);
 		repaint();
 	}
 
