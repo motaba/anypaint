@@ -9,9 +9,9 @@ public class EraserDrawing extends Drawing {
 	protected float height;
 	protected float width;
 	
-	public EraserDrawing(float width, float height) {
-		this.height=height;
-		this.width=width;
+	public EraserDrawing() {
+		height=150;
+		width=80;
 		
 		createShapes();
 	}

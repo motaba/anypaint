@@ -4,17 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -33,11 +31,12 @@ public class Canvas extends JComponent {
 	
 	protected Tool currentTool;
 	
-	protected Cursor cursor;
+	protected Cursor handCursor=new Cursor(new HandDrawing(), new Point2D.Double());
+;
 	
 	public Canvas(AnyPaint mp) {
 		this.mp=mp;
-		
+		mp.getCursorPane().addMouseEventSource(this);
 		currentTool=null;
 
 		addMouseMotionListener(new MouseMotionListener() {
@@ -60,15 +59,7 @@ public class Canvas extends JComponent {
 		});
 
 		
-		addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
+		addMouseListener(new MouseAdapter() {
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
@@ -78,7 +69,6 @@ public class Canvas extends JComponent {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				lastMousePos=e.getPoint();
-				mp.getCursorPane().setDrawingCursor(cursor);
 			}
 			
 			@Override
@@ -94,6 +84,8 @@ public class Canvas extends JComponent {
 				super.componentResized(e);
 			}
 		});
+		
+		onToolSelected();
 	}
 
 	protected void onMouseClick(MouseEvent e) {
@@ -141,12 +133,10 @@ public class Canvas extends JComponent {
 	public void onToolSelected() {
 		currentTool=mp.getToolBox().getCurrentTool();
 		if (currentTool==null) {
-			cursor=null;
+			mp.getCursorPane().onCursorChange(this, handCursor);
+		} else {
+			mp.getCursorPane().onCursorChange(this, currentTool.getCursor());
 		}
-		Drawing draw=currentTool.getDrawing();
-		double angle=-Math.PI/6.0;
-		Point hotspot=draw.getHotSpot(angle);
-		cursor=new Cursor(draw.getTransformedDrawing(AffineTransform.getRotateInstance(angle)),hotspot);
 	}
 	
 }

@@ -6,19 +6,24 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 
 public class Pencil extends Tool {
 
 	protected Color color;
-	protected float size;
 	protected Stroke stroke;
 	protected Drawing drawing;
+	protected Cursor cursor;
+	protected float size;
 	
-	public Pencil(AnyPaint app, Color color) {
-		this.color=color;
-		this.size=app.getPencilStrokeSize();
+	public Pencil(Color c, float sz) {
+		color=c;
+		size=sz;
 		stroke=new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-		drawing=new PencilDrawing(app.getPencilWidth(),app.getPencilHeight(), color);
+		Drawing d=new PencilDrawing(color);
+		Point hotspot=d.getHotSpot(-Math.PI/6);
+		cursor=new Cursor(d.getTransformedDrawing(AffineTransform.getRotateInstance(-Math.PI/6)),hotspot);
+		drawing=d.getTransformedDrawing(AffineTransform.getRotateInstance(Math.PI/2));
 	}
 
 	@Override
@@ -40,5 +45,10 @@ public class Pencil extends Tool {
 	@Override
 	public Drawing getDrawing() {
 		return drawing;
+	}
+
+	@Override
+	public Cursor getCursor() {
+		return cursor;
 	}
 }

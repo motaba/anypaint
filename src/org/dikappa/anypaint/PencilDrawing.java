@@ -13,9 +13,9 @@ public class PencilDrawing extends Drawing{
 	
 	protected Color pencilColor;
 	
-	public PencilDrawing(float width, float height, Color c) {
-		this.width=width;
-		this.height=height;
+	public PencilDrawing(Color c) {
+		width=50;
+		height=150;
 		pencilColor=c;
 		
 		createShapes();

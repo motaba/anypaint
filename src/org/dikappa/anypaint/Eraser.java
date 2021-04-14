@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 
 public class Eraser extends Tool {
 	
@@ -13,12 +14,17 @@ public class Eraser extends Tool {
 	protected int rad;
 	protected Stroke stroke;
 	protected Drawing drawing;
+	protected Cursor cursor;
 	
-	public Eraser(AnyPaint app) {
-		this.size=app.getEraserStrokeSize();
+	public Eraser(float sz) {
+		size=sz;
 		rad=Math.round(size/2);
 		stroke=new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-		drawing=new EraserDrawing(app.getEraserWidth(),app.getEraserHeight());
+		Drawing d=new EraserDrawing();
+		Point hotspot=d.getHotSpot(-Math.PI/6);
+
+		drawing=d.getTransformedDrawing(AffineTransform.getRotateInstance(Math.PI/2));
+		cursor=new Cursor(d.getTransformedDrawing(AffineTransform.getRotateInstance(-Math.PI/6)), hotspot);
 	}
 
 	@Override
@@ -40,6 +46,11 @@ public class Eraser extends Tool {
 	@Override
 	public Drawing getDrawing() {
 		return drawing;
+	}
+
+	@Override
+	public Cursor getCursor() {
+		return cursor;
 	}
 	
 	

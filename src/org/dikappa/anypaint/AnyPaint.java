@@ -13,43 +13,34 @@ import javax.swing.JPanel;
 
 public class AnyPaint {
 
+	public static final double TOOL_MARGIN=10.0;
+	public static final double ACTION_MARGIN=10.0;
+	public static final double CANVAS_MARGIN=10.0;
+	public static final long MIN_TIME_BETWEEN_CLICK=1000l;
+	
 	protected float width;
 	protected float height;
 	
 	double scale;
 	
-	protected float pencillength;
-	protected float pencilwidth;
-	
-	protected float eraserlength;
-	protected float eraserwidth;
-	
-	protected float vtoolspacing;
-	
-	protected float canvaswidth;
-	protected float canvasheight;
-	
-	protected float pencilstrokesize;
-	protected float eraserstrokesize;
-	
 	protected JFrame frame;
-	protected ToolBoxPanel toolBox;
+	protected ToolBox toolBox;
 	protected ActionBox actionBox;
 	protected Canvas canvas;
-	protected ImageCursorPanel cursorPanel;
+	protected OverlayPanel cursorPanel;
 	
 	public AnyPaint() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice device = env.getScreenDevices()[0];
 		
+		cursorPanel=new OverlayPanel();
         frame=new JFrame("Minipainter");
-		toolBox=new ToolBoxPanel(this);
+		toolBox=new ToolBox(this);
 		actionBox=new ActionBox(this);
 		canvas=new Canvas(this);
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
-		cursorPanel=new ImageCursorPanel();
 		cursorPanel.setLayout(new BorderLayout());
 		JPanel canvasframe=new JPanel(new GridBagLayout());
 		canvasframe.add(canvas);
@@ -72,7 +63,7 @@ public class AnyPaint {
 		frame.setResizable(false);
 		frame.pack();
 
-		frame.setSize(800,600);
+		frame.setSize(1000,800);
 		frame.revalidate();
 		frame.setVisible(true);
 		//device.setFullScreenWindow(frame);
@@ -83,56 +74,15 @@ public class AnyPaint {
 		this.height=height;
 		scale=height/1000.0;
 		
-		calculateSizes();
-		toolBox.onResize();
+		toolBox.setScale(scale);
 		actionBox.setScale(scale);
-		canvas.clear((int) (width-vtoolspacing*2-toolBox.getPreferredSize().width-actionBox.getPreferredSize().width), getCanvasHeight());
-	}
-	
-	protected void calculateSizes() {
-		//Pencil size=1/4 of height (3:1 length width)
-		pencillength=height/6;
-		pencilwidth=pencillength/3;
+		cursorPanel.setScale(scale);
 		
-		eraserlength=pencillength;
-		eraserwidth=eraserlength/2;
-	
-		vtoolspacing=height/48;
-		
-		canvasheight=height-vtoolspacing*2;
-		canvaswidth=width-vtoolspacing*6-pencillength-getActionIconWidth();
-		
-		pencilstrokesize=height/100;
-		eraserstrokesize=pencilstrokesize*4;
+		int canvasHeight=(int) (height-CANVAS_MARGIN*2*scale);
+		int canvasWidth=(int) (width-CANVAS_MARGIN*2*scale-toolBox.getPreferredSize().width-actionBox.getPreferredSize().width);
+		canvas.clear(canvasWidth, canvasHeight);
 	}
 	
-	public float getPencilHeight() {
-		return pencillength;
-	}
-	
-	public float getPencilWidth() {
-		return pencilwidth;
-	}
-	
-	public float getEraserHeight() {
-		return eraserlength;
-	}
-	
-	public float getEraserWidth() {
-		return eraserwidth;
-	}
-	
-	public float getVToolSpacing() {
-		return vtoolspacing;
-	}
-	
-	public int getCanvasWidth() {
-		return (int) canvaswidth;
-	}
-	
-	public int getCanvasHeight() {
-		return (int) canvasheight;
-	}
 	public static void main(String[] args) {
 //    	KeyHook.blockWindowsKey();
 //    	Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -145,15 +95,7 @@ public class AnyPaint {
         AnyPaint mp=new AnyPaint();
 	}
 
-	public float getPencilStrokeSize() {
-		return pencilstrokesize;
-	}
-	
-	public float getEraserStrokeSize() {
-		return eraserstrokesize;
-	}
-	
-	public ToolBoxPanel getToolBox() {
+	public ToolBox getToolBox() {
 		return toolBox;
 	}
 	
@@ -161,15 +103,8 @@ public class AnyPaint {
 		return canvas;
 	}
 	
-	public ImageCursorPanel getCursorPane() {
+	public OverlayPanel getCursorPane() {
 		return cursorPanel;
 	}
 	
-	public float getActionIconHeight() {
-		return height/8;
-	}
-
-	public float getActionIconWidth() {
-		return height/12;
-	}
 }

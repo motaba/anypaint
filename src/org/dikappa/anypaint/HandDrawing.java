@@ -8,6 +8,10 @@ public class HandDrawing extends Drawing {
 	
 	protected float width;
 	protected float height;
+
+	public HandDrawing() {
+		this(85,85);
+	}
 	
 	public HandDrawing(float width, float height) {
 		this.width=width;

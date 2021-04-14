@@ -1,5 +1,6 @@
 package org.dikappa.anypaint;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +16,14 @@ public class ActionBox extends JComponent {
 
 	protected AnyPaint app;
 	
+	protected Cursor handCursor;
+	
 	public ActionBox(AnyPaint app) {
 		this.app=app;
-		actionPanels.add(new ActionPanel(app, new NewDocumentDrawing(), 10.0));
+		app.getCursorPane().addMouseEventSource(this);
+
+		handCursor=new Cursor(new HandDrawing(), new Point2D.Double());
+		actionPanels.add(new ActionPanel(app, new NewDocumentDrawing()));
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
@@ -25,6 +31,7 @@ public class ActionBox extends JComponent {
 			add(c);
 		}
 		add(Box.createVerticalGlue());
+		app.getCursorPane().onCursorChange(this, handCursor);
 	}
 	
 	public void setScale(double scale) {
