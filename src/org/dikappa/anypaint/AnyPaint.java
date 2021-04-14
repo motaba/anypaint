@@ -33,7 +33,7 @@ public class AnyPaint {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice device = env.getScreenDevices()[0];
 		
-		cursorPanel=new OverlayPanel();
+		cursorPanel=new OverlayPanel(this);
         frame=new JFrame("Minipainter");
 		toolBox=new ToolBox(this);
 		actionBox=new ActionBox(this);
@@ -64,7 +64,6 @@ public class AnyPaint {
 		frame.pack();
 
 		frame.setSize(1000,800);
-		frame.revalidate();
 		frame.setVisible(true);
 		//device.setFullScreenWindow(frame);
 	}
@@ -81,6 +80,8 @@ public class AnyPaint {
 		int canvasHeight=(int) (height-CANVAS_MARGIN*2*scale);
 		int canvasWidth=(int) (width-CANVAS_MARGIN*2*scale-toolBox.getPreferredSize().width-actionBox.getPreferredSize().width);
 		canvas.clear(canvasWidth, canvasHeight);
+		
+		frame.revalidate();
 	}
 	
 	public static void main(String[] args) {

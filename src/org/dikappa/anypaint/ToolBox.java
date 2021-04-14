@@ -48,6 +48,7 @@ public class ToolBox extends JPanel {
 		handDrawing=new HandDrawing();
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(Box.createVerticalGlue());
 		for (JComponent c: toolPanels) {
 			add(c);
 		}
@@ -92,6 +93,7 @@ public class ToolBox extends JPanel {
 		for (ToolPanel tp: toolPanels) {
 			tp.setScale(scale);
 		}
+		invalidate();
 	}
 
 }

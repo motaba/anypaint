@@ -1,6 +1,8 @@
 package org.dikappa.anypaint;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -16,30 +18,19 @@ public class Drawing {
 	protected List<Shape> shapes=new ArrayList<Shape>();
 	protected List<Color> colors=new ArrayList<Color>();
 	protected Point2D.Float hotspot=null;
-	
-	public void draw(Graphics2D g, float x, float y, double rotate) {
-		
-		AffineTransform at=AffineTransform.getTranslateInstance(x, y);
-		at.concatenate(AffineTransform.getRotateInstance(rotate));
-		
-		AffineTransform atOld=g.getTransform();
-		g.transform(at);
-		
-		for (int i=0;i<shapes.size();i++) {
-			Color c=colors.get(i);
-			Shape s=shapes.get(i);
-			g.setColor(c);
-			g.fill(s);
-			g.setColor(Color.black);
-			g.draw(s);
-		}
-		
-		g.setTransform(atOld);
-	}
 
+	public void draw(Graphics2D g, double x, double y, double scale, float alpha) {
+		Composite ac=g.getComposite();
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,alpha));
+		draw(g, x, y, scale);
+		g.setComposite(ac);
+	}
+	
 	public void draw(Graphics2D g, double x, double y, double scale) {
 		AffineTransform at=AffineTransform.getTranslateInstance(x, y);
 		at.concatenate(AffineTransform.getScaleInstance(scale, scale));
+//		AffineTransform at=AffineTransform.getScaleInstance(scale, scale);
+//		at.concatenate(AffineTransform.getTranslateInstance(x, y));
 		AffineTransform atOld=g.getTransform();
 		g.transform(at);
 		
@@ -57,6 +48,10 @@ public class Drawing {
 
 	protected Color darker(Color c) {
 		return new Color(c.getRed()*75/100,c.getGreen()*75/100,c.getBlue()*75/100);
+	}
+	
+	protected Color lighter(Color c) {
+		return new Color(c.getRed()/2+128,c.getGreen()/2+128,c.getBlue()/2+128);
 	}
 	
 	public Rectangle determineBounds(double rotate) {

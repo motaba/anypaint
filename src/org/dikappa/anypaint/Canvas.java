@@ -109,7 +109,15 @@ public class Canvas extends JComponent {
 		imggraph=image.createGraphics();
 		imggraph.setColor(Color.white);
 		imggraph.fillRect(0, 0, width, height);
-		revalidate();
+		invalidate();
+	}
+
+	public void clear() {
+		image=new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+		imggraph=image.createGraphics();
+		imggraph.setColor(Color.white);
+		imggraph.fillRect(0, 0, image.getWidth(), image.getHeight());
+		repaint();
 	}
 	
 	@Override

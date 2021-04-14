@@ -11,7 +11,7 @@ import javax.swing.JComponent;
 public class ActionPanel extends JComponent {
 	private static final long serialVersionUID = -4847734777135800315L;
 	
-	protected Drawing drawing;
+	protected Action action;
 	protected Rectangle2D bounds;
 	
 	protected double scale=1.0;
@@ -19,27 +19,32 @@ public class ActionPanel extends JComponent {
 	protected AnyPaint app;
 	
 	protected Cursor dragCursor;
-	public ActionPanel(AnyPaint a, Drawing d) {
+	
+	public ActionPanel(AnyPaint a, Action act) {
 		app=a;
-		drawing=d;
-		bounds=drawing.getBounds();
-		dragCursor=new Cursor(d, new Point2D.Double());
+		action=act;
+		bounds=action.getIcon().getBounds();
+		dragCursor=new Cursor(action.getIcon(), new Point2D.Double());
 		app.getCursorPane().addMouseEventSource(this);
 	}
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension((int) ((bounds.getWidth()+AnyPaint.ACTION_MARGIN)*scale), (int) ((bounds.getHeight()+AnyPaint.ACTION_MARGIN)*scale));
+		return new Dimension((int) ((bounds.getWidth()+AnyPaint.ACTION_MARGIN*2)*scale), (int) ((bounds.getHeight()+AnyPaint.ACTION_MARGIN*2)*scale));
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2=(Graphics2D) g;
-		drawing.draw(g2,-bounds.getX(), -bounds.getY(), scale);
+		action.getIcon().draw(g2,(-bounds.getX()+AnyPaint.ACTION_MARGIN)*scale,(-bounds.getY()+AnyPaint.ACTION_MARGIN)*scale, scale);
 	}
 	
 	public void setScale(double scale) {
 		this.scale=scale;
+	}
+	
+	public Action getAction() {
+		return action;
 	}
 	
 }

@@ -23,7 +23,7 @@ public class ActionBox extends JComponent {
 		app.getCursorPane().addMouseEventSource(this);
 
 		handCursor=new Cursor(new HandDrawing(), new Point2D.Double());
-		actionPanels.add(new ActionPanel(app, new NewDocumentDrawing()));
+		actionPanels.add(new ActionPanel(app, new Action(new NewDocumentDrawing())));
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
@@ -38,5 +38,6 @@ public class ActionBox extends JComponent {
 		for (ActionPanel ap: actionPanels) {
 			ap.setScale(scale);
 		}
+		invalidate();
 	}
 }

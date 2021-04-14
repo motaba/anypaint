@@ -26,6 +26,8 @@ public class OverlayPanel extends JPanel {
 	protected double scale=1.0;
 	
 	protected Cursor draggingIcon=null;
+	protected Action draggingAction=null;
+	protected Drawing targetDrawing=null;
 	
 	protected Map<Component, Cursor> cursorMap=new HashMap<Component, Cursor>();
 	protected Component currentComponent=null;
@@ -33,6 +35,15 @@ public class OverlayPanel extends JPanel {
 	protected MouseInputAdapter mil=new MouseInputAdapter() {
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			if (e.getSource() instanceof ActionPanel) {
+				Action action=((ActionPanel) e.getSource()).getAction();
+				if (draggingIcon==null) {
+					draggingAction=action;
+					draggingIcon=new Cursor(action.getIcon(), new Point2D.Double());
+					targetDrawing=new TargetDrawing();
+					targetDrawing=Drawing.overlay(targetDrawing, draggingAction.getIcon());
+				}
+			}
 			repaint();
 		}
 		
@@ -46,17 +57,27 @@ public class OverlayPanel extends JPanel {
 		public void mouseMoved(MouseEvent e) {
 			repaint();
 		}
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (draggingIcon!=null) {
+				Point p=SwingUtilities.convertPoint((Component) e.getSource(), e.getX(), e.getY(), OverlayPanel.this);
+				p.x-=OverlayPanel.this.getWidth()/2;
+				p.y-=OverlayPanel.this.getHeight()/2;
+				double rad=Math.sqrt(p.x*p.x+p.y*p.y);
+				if (rad<=90*scale) {
+					app.getCanvas().clear();
+				}
+				draggingIcon=null;
+				repaint();
+			}
+		}
 	};
 	
-	public OverlayPanel() {
-//		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-//			@Override
-//			public void eventDispatched(AWTEvent e) {
-//				if (e instanceof MouseEvent&&cursor!=null) {
-//					repaint();
-//				}
-//			}
-//		}, AWTEvent.MOUSE_MOTION_EVENT_MASK);
+	protected AnyPaint app;
+	
+	public OverlayPanel(AnyPaint a) {
+		app=a;
 		setCursor(Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB), new Point(0,0), "empty"));
 	}
 	
@@ -66,7 +87,7 @@ public class OverlayPanel extends JPanel {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		super.paint(g);
-		Cursor cursor=null;
+		Cursor cursor=draggingIcon;
 		Component comp=currentComponent;
 		while (cursor==null&&comp!=null) {
 			cursor=cursorMap.get(comp);
@@ -76,6 +97,9 @@ public class OverlayPanel extends JPanel {
 			Point p=MouseInfo.getPointerInfo().getLocation();
 			SwingUtilities.convertPointFromScreen(p, this);
 			Point2D hs=cursor.getHotSpot();
+			if (draggingIcon!=null) {
+				targetDrawing.draw(g2, getWidth()/2, getHeight()/2, scale, 0.3f);
+			}
 			cursor.getDrawing().draw((Graphics2D) g, p.x-hs.getX()*scale, p.y-hs.getY()*scale, scale);
 		}
 
@@ -83,7 +107,7 @@ public class OverlayPanel extends JPanel {
 	
 	public void setScale(double s) {
 		scale=s;
-		repaint();
+		invalidate();
 	}
 	
 	public void onCursorChange(Component comp, Cursor cur) {

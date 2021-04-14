@@ -43,12 +43,12 @@ public class ToolPanel extends JComponent {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension((int) ((bounds.getWidth()+AnyPaint.TOOL_MARGIN)*scale), (int) ((bounds.getHeight()+AnyPaint.TOOL_MARGIN)*scale));
+		return new Dimension((int) ((bounds.getWidth()+AnyPaint.TOOL_MARGIN*2)*scale), (int) ((bounds.getHeight()+AnyPaint.TOOL_MARGIN*2)*scale));
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		tool.getDrawing().draw((Graphics2D) g,-bounds.getX(), -bounds.getY(), scale);
+		tool.getDrawing().draw((Graphics2D) g,(-bounds.getX()+AnyPaint.TOOL_MARGIN)*scale, (-bounds.getY()+AnyPaint.TOOL_MARGIN)*scale, scale);
 	}
 	
 	public void setScale(double scale) {
